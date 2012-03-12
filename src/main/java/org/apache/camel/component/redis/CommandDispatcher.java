@@ -1,42 +1,35 @@
 package org.apache.camel.component.redis;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Protocol;
-import redis.clients.jedis.Transaction;
-
-public class RedisCommand {
-    private final Jedis jedis;
+public class CommandDispatcher {
     private final RedisConfiguration configuration;
     private final Exchange exchange;
 
-    public RedisCommand(Jedis jedis, RedisConfiguration configuration, Exchange exchange) {
-        this.jedis = jedis;
+    public CommandDispatcher(RedisConfiguration configuration, Exchange exchange) {
         this.configuration = configuration;
         this.exchange = exchange;
     }
 
-    public void execute() {
+    public void execute(final RedisClient redisClient) {
         switch (determineCommand()) {
 
         case PING:
-            executePing();
+            setResult(redisClient.ping());
             break;
         case SET:
-            executeSet();
+            redisClient.set(getKey(), getValue());
             break;
         case GET:
-            executeGet();
+            setResult(redisClient.get(getKey()));
             break;
         case QUIT:
-            executeQuit();
+            redisClient.quit();
             break;
         case EXISTS:
             notImplemented();
@@ -87,76 +80,76 @@ public class RedisCommand {
             notImplemented();
             break;
         case GETSET:
-            notImplemented();
+            setResult(redisClient.getset(getKey(), getValue()));
             break;
         case MGET:
-            notImplemented();
+            setResult(redisClient.mget(getFields()));
             break;
         case SETNX:
-            notImplemented();
+            setResult(redisClient.setnx(getKey(), getValue()));
             break;
         case SETEX:
-            notImplemented();
+            redisClient.setex(getKey(), getValue(), getTimeout(), TimeUnit.SECONDS);
             break;
         case MSET:
-            notImplemented();
+            redisClient.mset(getValuesAsMap());
             break;
         case MSETNX:
-            notImplemented();
+            redisClient.msetnx(getValuesAsMap());
             break;
         case DECRBY:
-            notImplemented();
+            setResult(redisClient.decrby(getKey(), Long.valueOf(getValue())));
             break;
         case DECR:
-            notImplemented();
+            setResult(redisClient.decr(getKey()));
             break;
         case INCRBY:
-            notImplemented();
+            setResult(redisClient.incrby(getKey(), Long.valueOf(getValue())));
             break;
         case INCR:
-            notImplemented();
+            setResult(redisClient.incr(getKey()));
             break;
         case APPEND:
-            notImplemented();
+            setResult(redisClient.append(getKey(), getValue()));
             break;
         case SUBSTR:
             notImplemented();
             break;
         case HSET:
-            executeHSET();
+            redisClient.hset(getKey(), getField(), getValue());
             break;
         case HGET:
-            executeHGET();
+            setResult(redisClient.hget(getKey(), getField()));
             break;
         case HSETNX:
-            executeHSETNX();
+            setResult(redisClient.hsetnx(getKey(), getField(), getValue()));
             break;
         case HMSET:
-            executeHMSET();
+            redisClient.hmset(getKey(), getValuesAsMap());
             break;
         case HMGET:
-            executeHMGET();
+            setResult(redisClient.hmget(getKey(), getFields()));
             break;
         case HINCRBY:
-            exeuteHINCRBY();
+            setResult(redisClient.hincrBy(getKey(), getField(), getValueAsLong()));
             break;
         case HEXISTS:
-            executeHEXISTS();
+            setResult(redisClient.hexists(getKey(), getField()));
             break;
         case HDEL:
-            executeHDEL();
+            redisClient.hdel(getKey(), getField());
             break;
         case HLEN:
-            executeHLEN();
+            setResult(redisClient.hlen(getKey()));
             break;
         case HKEYS:
-            executeHKEYS();
+            setResult(redisClient.hkeys(getKey()));
             break;
         case HVALS:
-            executeHVALS();
+            setResult(redisClient.hvals(getKey()));
             break;
         case HGETALL:
-            executeHGETALL();
+            setResult(redisClient.hgetAll(getKey()));
             break;
         case RPUSH:
             notImplemented();
@@ -261,19 +254,19 @@ public class RedisCommand {
             notImplemented();
             break;
         case MULTI:
-            executeMULTI();
+            redisClient.multi();
             break;
         case DISCARD:
-            notImplemented();
+            redisClient.discard();
             break;
         case EXEC:
-            notImplemented();
+            redisClient.exec();
             break;
         case WATCH:
-            notImplemented();
+            redisClient.watch(getKeys());
             break;
         case UNWATCH:
-            notImplemented();
+            redisClient.unwatch();
             break;
         case SORT:
             notImplemented();
@@ -351,7 +344,7 @@ public class RedisCommand {
             notImplemented();
             break;
         case STRLEN:
-            notImplemented();
+            setResult(redisClient.strlen(getKey()));
             break;
         case SYNC:
             notImplemented();
@@ -378,143 +371,81 @@ public class RedisCommand {
             notImplemented();
             break;
         case SETBIT:
-            notImplemented();
+            redisClient.setbit(getKey(), getOffset(), Boolean.valueOf(getValue()));
             break;
         case GETBIT:
-            notImplemented();
+            setResult(redisClient.getbit(getKey(), getOffset()));
             break;
         case SETRANGE:
-            notImplemented();
+            redisClient.setex(getKey(), getValue(), getOffset());
             break;
         case GETRANGE:
-            notImplemented();
+            setResult(redisClient.getrange(getKey(), getStart(), getEnd()));
             break;
         default:
             throw new IllegalArgumentException("Unsupported command");
         }
     }
 
-    private void executeMULTI() {
-
-        Transaction multi = jedis.multi();
-     }
-
-    private void executeHVALS() {
-        List<String> result = jedis.hvals(
-                getInHeaderValue(exchange, RedisConstants.KEY, String.class));
-        setResult(result);
+    private Long getStart() {
+        return getInHeaderValue(exchange, RedisConstants.START, Long.class);
     }
 
-    private void executeHSETNX() {
-        Long result = jedis.hsetnx(
-                getInHeaderValue(exchange, RedisConstants.KEY, String.class),
-                getInHeaderValue(exchange, RedisConstants.FIELD, String.class),
-                getInHeaderValue(exchange, RedisConstants.VALUE, String.class));
-        setResult(result);
+    private Long getEnd() {
+        return getInHeaderValue(exchange, RedisConstants.END, Long.class);
     }
 
-    private void executeHMSET() {
-        String result = jedis.hmset(
-                getInHeaderValue(exchange, RedisConstants.KEY, String.class),
-                getInHeaderValue(exchange, RedisConstants.VALUES, new HashMap<String, String>().getClass()));
-        setResult(result);
 
+    private Long getTimeout() {
+        return getInHeaderValue(exchange, RedisConstants.TIMEOUT, Long.class);
     }
 
-    private void executeHMGET() {
-        List<String> result = jedis.hmget(
-                getInHeaderValue(exchange, RedisConstants.KEY, String.class),
-                getInHeaderValue(exchange, RedisConstants.FIELDS, new String[] {}.getClass()));
-        setResult(result);
+    private Long getOffset() {
+        return getInHeaderValue(exchange, RedisConstants.OFFSET, Long.class);
     }
 
-    private void executeHKEYS() {
-        Set<String> result = jedis.hkeys(
-                getInHeaderValue(exchange, RedisConstants.KEY, String.class));
-        setResult(result);
+    private Long getValueAsLong() {
+        return getInHeaderValue(exchange, RedisConstants.VALUE, Long.class);
     }
 
-    private void executeHLEN() {
-        Long result = jedis.hlen(
-                getInHeaderValue(exchange, RedisConstants.KEY, String.class));
-        setResult(result);
+    private Collection<String> getFields() {
+        return getInHeaderValue(exchange, RedisConstants.FIELDS, Collection.class);
     }
 
-    private void exeuteHINCRBY() {
-        Long result = jedis.hincrBy(
-                getInHeaderValue(exchange, RedisConstants.KEY, String.class),
-                getInHeaderValue(exchange, RedisConstants.FIELD, String.class),
-                getInHeaderValue(exchange, RedisConstants.VALUE, Long.class));
-        setResult(result);
+    private HashMap getValuesAsMap() {
+        return getInHeaderValue(exchange, RedisConstants.VALUES, new HashMap<String, String>().getClass());
     }
 
-    private void executeHGETALL() {
-        Map<String, String> result = jedis
-                .hgetAll(getInHeaderValue(exchange, RedisConstants.KEY, String.class));
-        setResult(result);
+    private String getKey() {
+        return getInHeaderValue(exchange, RedisConstants.KEY, String.class);
     }
 
-    private void executeHEXISTS() {
-        Boolean result = jedis.hexists(
-                getInHeaderValue(exchange, RedisConstants.KEY, String.class),
-                getInHeaderValue(exchange, RedisConstants.FIELD, String.class));
-        setResult(result);
+
+    public Collection<String> getKeys() {
+        return getInHeaderValue(exchange, RedisConstants.KEYS, Collection.class);
     }
 
-    private void executeHGET() {
-        String result = jedis.hget(
-                getInHeaderValue(exchange, RedisConstants.KEY, String.class),
-                getInHeaderValue(exchange, RedisConstants.FIELD, String.class));
-        setResult(result);
+    private String getValue() {
+        return getInHeaderValue(exchange, RedisConstants.VALUE, String.class);
     }
 
-    private void executeHDEL() {
-        Long result = jedis.hdel(
-                getInHeaderValue(exchange, RedisConstants.KEY, String.class),
-                getInHeaderValue(exchange, RedisConstants.FIELD, String.class));
-        setResult(result);
-    }
-
-    private void executeHSET() {
-        Long result = jedis.hset(
-                getInHeaderValue(exchange, RedisConstants.KEY, String.class),
-                getInHeaderValue(exchange, RedisConstants.FIELD, String.class),
-                getInHeaderValue(exchange, RedisConstants.VALUE, String.class));
-        setResult(result);
-    }
-
-    private void executeQuit() {
-        setResult(jedis.quit());
-    }
-
-    private void executeGet() {
-        setResult(jedis.get(getInHeaderValue(exchange, RedisConstants.KEY, String.class)));
-    }
-
-    private void executePing() {
-        setResult(jedis.ping());
-    }
-
-    private void executeSet() {
-        String result = jedis.set(
-                getInHeaderValue(exchange, RedisConstants.KEY, String.class),
-                getInHeaderValue(exchange, RedisConstants.VALUE, String.class));
-        setResult(result);
+    private String getField() {
+        return getInHeaderValue(exchange, RedisConstants.FIELD, String.class);
     }
 
     private void notImplemented() {
         setResult("Not implemented");
     }
 
-    private Protocol.Command determineCommand() {
+    private Command determineCommand() {
         String command = exchange.getIn().getHeader(RedisConstants.COMMAND, String.class);
         if (command == null) {
             command = configuration.getCommand();
         }
         if (command == null) {
-            return Protocol.Command.SET;
+            return Command.SET;
         }
-        return Protocol.Command.valueOf(command);
+        return Command.valueOf(command);
     }
 
     private static <T> T getInHeaderValue(Exchange exchange, String key, Class<T> aClass) {
@@ -531,4 +462,5 @@ public class RedisCommand {
         }
         message.setBody(result);
     }
+
 }

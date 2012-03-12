@@ -17,54 +17,44 @@
 package org.apache.camel.component.redis;
 
 import org.apache.camel.impl.JndiRegistry;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 
-import redis.clients.jedis.Jedis;
-
+@Ignore
 public class RedisComponentIntegrationTest extends RedisTestSupport {
-
-    @BeforeClass
-    public static void setupJedis() {
-        jedis = new Jedis("localhost", 6379, 500);
-        jedis.connect();
-        jedis.flushAll();
-    }
-
-    @AfterClass
-    public static void tearDownJedis() throws Exception {
-        jedis.disconnect();
-    }
-
-    @Override
-    @After
-    public void tearDown() throws Exception {
-        jedis.flushAll();
+    public static final JedisConnectionFactory CONNECTION_FACTORY = new JedisConnectionFactory();
+    static {
+        CONNECTION_FACTORY.afterPropertiesSet();
     }
 
     @Override
     protected JndiRegistry createRegistry() throws Exception {
         JndiRegistry registry = super.createRegistry();
-        registry.bind("jedis", jedis);
+        redisTemplate = new RedisTemplate();
+        redisTemplate.setConnectionFactory(CONNECTION_FACTORY);
+        redisTemplate.afterPropertiesSet();
+
+        registry.bind("redisTemplate", redisTemplate);
         return registry;
     }
 
     @Test
     public void shouldSetAString() throws Exception {
-        Object result = sendHeaders(RedisConstants.KEY, "key1", RedisConstants.VALUE, "value");
+        Object result = sendHeaders(
+                RedisConstants.COMMAND, "SET",
+                RedisConstants.KEY, "key1",
+                RedisConstants.VALUE, "value");
 
-        assertEquals("value", jedis.get("key1"));
-        assertEquals("OK", result);
+        assertEquals("value", redisTemplate.opsForValue().get("key1"));
     }
 
     @Test
     public void shouldGetAString() throws Exception {
-        jedis.set("key2", "value");
+        redisTemplate.opsForValue().set("key2", "value");
         Object result = sendHeaders(RedisConstants.KEY, "key2", RedisConstants.COMMAND, "GET");
 
         assertEquals("value", result);
     }
-
 }

@@ -19,8 +19,13 @@ package org.apache.camel.component.redis;
 public interface RedisConstants {
     String COMMAND = "CamelRedis.Command";
     String KEY = "CamelRedis.Key";
+    String KEYS = "CamelRedis.Keys";
     String FIELD = "CamelRedis.Field";
     String FIELDS = "CamelRedis.Fields";
     String VALUE = "CamelRedis.Value";
     String VALUES = "CamelRedis.Values";
+    String START = "CamelRedis.Start";
+    String END = "CamelRedis.End";
+    String TIMEOUT = "CamelRedis.Timeout";
+    String OFFSET = "CamelRedis.Offset";
 }

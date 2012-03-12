@@ -35,7 +35,7 @@ public class RedisEndpoint extends DefaultEndpoint {
     }
 
     public Producer createProducer() throws Exception {
-        return new RedisProducer(this, getJedis());
+        return new RedisProducer(this, configuration.getRedisTemplate());
     }
 
     public Consumer createConsumer(Processor processor) throws Exception {
