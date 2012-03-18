@@ -19,15 +19,6 @@ public class RedisClient {
         this.redisTemplate = redisTemplate;
     }
 
-    public String ping() {
-        return redisTemplate.execute(new RedisCallback<String>() {
-            @Override
-            public String doInRedis(RedisConnection connection) throws DataAccessException {
-                return connection.ping();
-            }
-        });
-    }
-
     public void set(String key, String value) {
         redisTemplate.opsForValue().set(key, value);
     }
@@ -188,5 +179,87 @@ public class RedisClient {
 
     public void watch(Collection<String> keys) {
         redisTemplate.watch(keys);
+    }
+
+    public Boolean sadd(String key, String value) {
+        return redisTemplate.opsForSet().add(key, value);
+
+    }
+
+    public Long scard(String key) {
+        return redisTemplate.opsForSet().size(key);
+
+    }
+
+    public Set<String> sdiff(String key, Collection<String> keys) {
+        return redisTemplate.opsForSet().difference(key, keys);
+    }
+
+    public void sdiffstore(String key, Collection<String> keys, String destinations) {
+        redisTemplate.opsForSet().differenceAndStore(key, keys, destinations);
+
+    }
+
+    public Set<String> sinter(String key, Collection<String> keys) {
+        return redisTemplate.opsForSet().intersect(key, keys);
+    }
+
+    public void sinterstore(String key, Collection<String> keys, String destination) {
+        redisTemplate.opsForSet().intersectAndStore(key, keys, destination);
+    }
+
+    public Boolean sismember(String key, String value) {
+        return redisTemplate.opsForSet().isMember(key, value);
+    }
+
+    public Set<String> smembers(String key) {
+        return redisTemplate.opsForSet().members(key);
+    }
+
+    public Boolean smove(String key, String value, String destination) {
+        return redisTemplate.opsForSet().move(key, value, destination);
+    }
+
+    public String spop(String key) {
+        return redisTemplate.opsForSet().pop(key);
+
+    }
+
+    public String srandmember(String key) {
+        return redisTemplate.opsForSet().randomMember(key);
+    }
+
+    public Boolean srem(String key, String value) {
+        return redisTemplate.opsForSet().remove(key, value);
+    }
+
+    public Set<String> sunion(String key, Collection<String> keys) {
+        return redisTemplate.opsForSet().union(key, keys);
+    }
+
+    public void sunionstore(String key, Collection<String> keys, String destination) {
+        redisTemplate.opsForSet().unionAndStore(key, keys, destination);
+    }
+
+    public String echo(final String value) {
+        return redisTemplate.execute(new RedisCallback<String>() {
+            @Override
+            public String doInRedis(RedisConnection connection) throws DataAccessException {
+                return new String(connection.echo(value.getBytes()));
+            }
+        });
+    }
+
+    public String ping() {
+        return redisTemplate.execute(new RedisCallback<String>() {
+            @Override
+            public String doInRedis(RedisConnection connection) throws DataAccessException {
+                return connection.ping();
+            }
+        });
+    }
+
+    public void publish(String channel, Object message) {
+        redisTemplate.convertAndSend(channel, message);
     }
 }

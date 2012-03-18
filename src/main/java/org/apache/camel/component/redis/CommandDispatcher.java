@@ -185,46 +185,46 @@ public class CommandDispatcher {
             notImplemented();
             break;
         case SADD:
-            notImplemented();
+            setResult(redisClient.sadd(getKey(), getValue()));
             break;
         case SMEMBERS:
-            notImplemented();
+            setResult(redisClient.smembers(getKey()));
             break;
         case SREM:
-            notImplemented();
+            setResult(redisClient.srem(getKey(), getValue()));
             break;
         case SPOP:
-            notImplemented();
+            setResult(redisClient.spop(getKey()));
             break;
         case SMOVE:
-            notImplemented();
+            setResult(redisClient.smove(getKey(), getValue(), getDestination()));
             break;
         case SCARD:
-            notImplemented();
+            setResult(redisClient.scard(getKey()));
             break;
         case SISMEMBER:
-            notImplemented();
+            setResult(redisClient.sismember(getKey(), getValue()));
             break;
         case SINTER:
-            notImplemented();
+            setResult(redisClient.sinter(getKey(), getKeys()));
             break;
         case SINTERSTORE:
-            notImplemented();
+            redisClient.sinterstore(getKey(), getKeys(), getDestination());
             break;
         case SUNION:
-            notImplemented();
+            setResult(redisClient.sunion(getKey(), getKeys()));
             break;
         case SUNIONSTORE:
-            notImplemented();
+            redisClient.sunionstore(getKey(), getKeys(), getDestination());
             break;
         case SDIFF:
-            notImplemented();
+            setResult(redisClient.sdiff(getKey(), getKeys()));
             break;
         case SDIFFSTORE:
-            notImplemented();
+            redisClient.sdiffstore(getKey(), getKeys(), getDestination());
             break;
         case SRANDMEMBER:
-            notImplemented();
+            setResult(redisClient.srandmember(getKey()));
             break;
         case ZADD:
             notImplemented();
@@ -284,7 +284,7 @@ public class CommandDispatcher {
             notImplemented();
             break;
         case PUBLISH:
-            notImplemented();
+            redisClient.publish(getChannel(), getMessage());
             break;
         case UNSUBSCRIBE:
             notImplemented();
@@ -359,7 +359,7 @@ public class CommandDispatcher {
             notImplemented();
             break;
         case ECHO:
-            notImplemented();
+            setResult(redisClient.echo(getValue()));
             break;
         case LINSERT:
             notImplemented();
@@ -463,4 +463,15 @@ public class CommandDispatcher {
         message.setBody(result);
     }
 
+    public String getDestination() {
+        return getInHeaderValue(exchange, RedisConstants.DESTINATION, String.class);
+    }
+
+    private String getChannel() {
+        return getInHeaderValue(exchange, RedisConstants.CHANNEL, String.class);
+    }
+
+    private Object getMessage() {
+        return getInHeaderValue(exchange, RedisConstants.MESSAGE, Object.class);
+    }
 }

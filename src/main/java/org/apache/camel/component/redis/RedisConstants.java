@@ -28,4 +28,7 @@ public interface RedisConstants {
     String END = "CamelRedis.End";
     String TIMEOUT = "CamelRedis.Timeout";
     String OFFSET = "CamelRedis.Offset";
+    String DESTINATION = "CamelRedis.Destination";
+    String CHANNEL = "CamelRedis.Channel";
+    String MESSAGE = "CamelRedis.Message";
 }
