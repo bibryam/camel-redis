@@ -262,4 +262,78 @@ public class RedisClient {
     public void publish(String channel, Object message) {
         redisTemplate.convertAndSend(channel, message);
     }
+
+    public Object lpop(String key) {
+        return redisTemplate.opsForList().leftPop(key);
+    }
+
+    public Object blpop(String key, Long timeout) {
+        return redisTemplate.opsForList().leftPop(key, timeout, TimeUnit.SECONDS);
+    }
+
+
+    public Object brpoplpush(String key, String destination, Long timeout) {
+        return redisTemplate.opsForList().rightPopAndLeftPush(key, destination, timeout, TimeUnit.SECONDS);
+    }
+
+    public Object rpoplpush(String key, String destination) {
+        return redisTemplate.opsForList().rightPopAndLeftPush(key, destination);
+    }
+
+    public String lindex(String key, Long index) {
+        return redisTemplate.opsForList().index(key, index);
+    }
+
+    public Long linsert(String key, String value, String pivot, String position) {
+        if ("BEFORE".equals(position)) {
+            return redisTemplate.opsForList().leftPush(key, pivot, value);
+        } else if ("AFTER".equals(position)) {
+            return redisTemplate.opsForList().rightPush(key, pivot, value);
+        } else {
+            throw new IllegalArgumentException("Wrong position: " + position);
+        }
+    }
+
+    public String rpop(String key) {
+        return redisTemplate.opsForList().rightPop(key);
+    }
+
+    public String brpop(String key, Long timeout) {
+        return redisTemplate.opsForList().rightPop(key, timeout, TimeUnit.SECONDS);
+
+    }
+
+    public Long llen(String key) {
+        return redisTemplate.opsForList().size(key);
+    }
+
+    public List<String> lrange(String key, Long start, Long end) {
+        return redisTemplate.opsForList().range(key, start, end);
+
+    }
+
+    public Long lrem(String key, String value, Long count) {
+        return redisTemplate.opsForList().remove(key, count, value);
+    }
+
+    public void lset(String key, String value, Long index) {
+        redisTemplate.opsForList().set(key, index, value);
+    }
+
+    public void ltrim(String key, Long start, Long end) {
+        redisTemplate.opsForList().trim(key, start, end);
+    }
+
+
+    public Long rpush(String key, String value) {
+        return redisTemplate.opsForList().rightPush(key, value);
+    }
+
+    public Long rpushx(String key, String value) {
+        return redisTemplate.opsForList().rightPushIfPresent(key, value);
+    }
+
+    public Long lpush(String key, String value) {
+        return redisTemplate.opsForList().leftPush(key, value);
+    }
 }

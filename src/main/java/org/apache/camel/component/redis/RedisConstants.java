@@ -31,4 +31,8 @@ public interface RedisConstants {
     String DESTINATION = "CamelRedis.Destination";
     String CHANNEL = "CamelRedis.Channel";
     String MESSAGE = "CamelRedis.Message";
+    String INDEX = "CamelRedis.Index";
+    String POSITION = "CamelRedis.Position";
+    String PIVOT = "CamelRedis.Pivot";
+    String COUNT = "CamelRedis.Count";
 }

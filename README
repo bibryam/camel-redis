@@ -1,6 +1,5 @@
 Camel Redis Adapter
 ====================
-A Redis connector for Apache Camel.
+A Redis connector for Apache Camel using Spring Redis Template.
 
-It uses Spring Redis Template for the implementation.
-
+Author: Bilgin Ibryam

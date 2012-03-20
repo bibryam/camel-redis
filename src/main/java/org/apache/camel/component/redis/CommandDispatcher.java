@@ -10,6 +10,7 @@ import org.apache.camel.Message;
 public class CommandDispatcher {
     private final RedisConfiguration configuration;
     private final Exchange exchange;
+    private Object count;
 
     public CommandDispatcher(RedisConfiguration configuration, Exchange exchange) {
         this.configuration = configuration;
@@ -152,37 +153,37 @@ public class CommandDispatcher {
             setResult(redisClient.hgetAll(getKey()));
             break;
         case RPUSH:
-            notImplemented();
+            setResult(redisClient.rpush(getKey(), getValue()));
             break;
         case LPUSH:
-            notImplemented();
+            setResult(redisClient.lpush(getKey(), getValue()));
             break;
         case LLEN:
-            notImplemented();
+            setResult(redisClient.llen(getKey()));
             break;
         case LRANGE:
-            notImplemented();
+            setResult(redisClient.lrange(getKey(), getStart(), getEnd()));
             break;
         case LTRIM:
-            notImplemented();
+            redisClient.ltrim(getKey(), getStart(), getEnd());
             break;
         case LINDEX:
-            notImplemented();
+            setResult(redisClient.lindex(getKey(), getIndex()));
             break;
         case LSET:
-            notImplemented();
+            redisClient.lset(getKey(), getValue(), getIndex());
             break;
         case LREM:
-            notImplemented();
+            setResult(redisClient.lrem(getKey(), getValue(), getCount()));
             break;
         case LPOP:
-            notImplemented();
+            setResult(redisClient.lpop(getKey()));
             break;
         case RPOP:
-            notImplemented();
+            setResult(redisClient.rpop(getKey()));
             break;
         case RPOPLPUSH:
-            notImplemented();
+            setResult(redisClient.rpoplpush(getKey(), getDestination()));
             break;
         case SADD:
             setResult(redisClient.sadd(getKey(), getValue()));
@@ -272,10 +273,10 @@ public class CommandDispatcher {
             notImplemented();
             break;
         case BLPOP:
-            notImplemented();
+            setResult(redisClient.blpop(getKey(), getTimeout()));
             break;
         case BRPOP:
-            notImplemented();
+            setResult(redisClient.brpop(getKey(), getTimeout()));
             break;
         case AUTH:
             notImplemented();
@@ -356,19 +357,19 @@ public class CommandDispatcher {
             notImplemented();
             break;
         case RPUSHX:
-            notImplemented();
+            setResult(redisClient.rpushx(getKey(), getValue()));
             break;
         case ECHO:
             setResult(redisClient.echo(getValue()));
             break;
         case LINSERT:
-            notImplemented();
+            setResult(redisClient.linsert(getKey(), getValue(), getPivot(), getPosition()));
             break;
         case DEBUG:
             notImplemented();
             break;
         case BRPOPLPUSH:
-            notImplemented();
+            setResult(redisClient.brpoplpush(getKey(), getDestination(), getTimeout()));
             break;
         case SETBIT:
             redisClient.setbit(getKey(), getOffset(), Boolean.valueOf(getValue()));
@@ -385,52 +386,6 @@ public class CommandDispatcher {
         default:
             throw new IllegalArgumentException("Unsupported command");
         }
-    }
-
-    private Long getStart() {
-        return getInHeaderValue(exchange, RedisConstants.START, Long.class);
-    }
-
-    private Long getEnd() {
-        return getInHeaderValue(exchange, RedisConstants.END, Long.class);
-    }
-
-
-    private Long getTimeout() {
-        return getInHeaderValue(exchange, RedisConstants.TIMEOUT, Long.class);
-    }
-
-    private Long getOffset() {
-        return getInHeaderValue(exchange, RedisConstants.OFFSET, Long.class);
-    }
-
-    private Long getValueAsLong() {
-        return getInHeaderValue(exchange, RedisConstants.VALUE, Long.class);
-    }
-
-    private Collection<String> getFields() {
-        return getInHeaderValue(exchange, RedisConstants.FIELDS, Collection.class);
-    }
-
-    private HashMap getValuesAsMap() {
-        return getInHeaderValue(exchange, RedisConstants.VALUES, new HashMap<String, String>().getClass());
-    }
-
-    private String getKey() {
-        return getInHeaderValue(exchange, RedisConstants.KEY, String.class);
-    }
-
-
-    public Collection<String> getKeys() {
-        return getInHeaderValue(exchange, RedisConstants.KEYS, Collection.class);
-    }
-
-    private String getValue() {
-        return getInHeaderValue(exchange, RedisConstants.VALUE, String.class);
-    }
-
-    private String getField() {
-        return getInHeaderValue(exchange, RedisConstants.FIELD, String.class);
     }
 
     private void notImplemented() {
@@ -473,5 +428,65 @@ public class CommandDispatcher {
 
     private Object getMessage() {
         return getInHeaderValue(exchange, RedisConstants.MESSAGE, Object.class);
+    }
+
+    public Long getIndex() {
+        return getInHeaderValue(exchange, RedisConstants.INDEX, Long.class);
+    }
+
+    public String getPivot() {
+        return getInHeaderValue(exchange, RedisConstants.PIVOT, String.class);
+    }
+
+    public String getPosition() {
+        return getInHeaderValue(exchange, RedisConstants.POSITION, String.class);
+    }
+
+    public Long getCount() {
+        return getInHeaderValue(exchange, RedisConstants.COUNT, Long.class);
+    }
+
+    private Long getStart() {
+        return getInHeaderValue(exchange, RedisConstants.START, Long.class);
+    }
+
+    private Long getEnd() {
+        return getInHeaderValue(exchange, RedisConstants.END, Long.class);
+    }
+
+    private Long getTimeout() {
+        return getInHeaderValue(exchange, RedisConstants.TIMEOUT, Long.class);
+    }
+
+    private Long getOffset() {
+        return getInHeaderValue(exchange, RedisConstants.OFFSET, Long.class);
+    }
+
+    private Long getValueAsLong() {
+        return getInHeaderValue(exchange, RedisConstants.VALUE, Long.class);
+    }
+
+    private Collection<String> getFields() {
+        return getInHeaderValue(exchange, RedisConstants.FIELDS, Collection.class);
+    }
+
+    private HashMap getValuesAsMap() {
+        return getInHeaderValue(exchange, RedisConstants.VALUES, new HashMap<String, String>().getClass());
+    }
+
+    private String getKey() {
+        return getInHeaderValue(exchange, RedisConstants.KEY, String.class);
+    }
+
+    public Collection<String> getKeys() {
+        return getInHeaderValue(exchange, RedisConstants.KEYS, Collection.class);
+    }
+
+    private String getValue() {
+        return getInHeaderValue(exchange, RedisConstants.VALUE, String.class);
+    }
+
+    private String getField() {
+        return getInHeaderValue(exchange, RedisConstants.FIELD, String.class);
     }
 }
