@@ -1,6 +1,7 @@
 package org.apache.camel.component.redis;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,9 +9,12 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.query.SortQuery;
+import org.springframework.data.redis.core.query.SortQueryBuilder;
 
 public class RedisClient {
     private final RedisTemplate<String, String> redisTemplate;
@@ -335,5 +339,66 @@ public class RedisClient {
 
     public Long lpush(String key, String value) {
         return redisTemplate.opsForList().leftPush(key, value);
+    }
+
+    public void del(Collection<String> keys) {
+        redisTemplate.delete(keys);
+    }
+
+    public Boolean exists(String key) {
+        return redisTemplate.hasKey(key);
+    }
+
+    public Boolean expire(String key, Long timeout) {
+        return redisTemplate.expire(key, timeout, TimeUnit.SECONDS);
+    }
+
+    public Boolean expireat(String key, Long seconds) {
+        return redisTemplate.expireAt(key, new Date(seconds * 1000L));
+    }
+
+    public Collection<String> keys(String pattern) {
+        return redisTemplate.keys(pattern);
+    }
+
+    public Boolean move(String key, Integer db) {
+        return redisTemplate.move(key, db);
+    }
+
+    public Boolean persist(String key) {
+        return redisTemplate.persist(key);
+    }
+
+    public Boolean pexpire(String key, Long timeout) {
+        return redisTemplate.expire(key, timeout, TimeUnit.MILLISECONDS);
+    }
+
+    public Boolean pexpireat(String key, Long millis) {
+        return redisTemplate.expireAt(key, new Date(millis));
+    }
+
+    public String randomkey() {
+        return redisTemplate.randomKey();
+    }
+
+    public void rename(String key, String value) {
+        redisTemplate.rename(key, value);
+    }
+
+    public Boolean renamenx(String key, String value) {
+        return redisTemplate.renameIfAbsent(key, value);
+    }
+
+    public Long ttl(String key) {
+        return redisTemplate.getExpire(key);
+    }
+
+    public DataType type(String key) {
+        return redisTemplate.type(key);
+    }
+
+    public List<String> sort(String key) {
+        SortQuery<String> sortQuery = SortQueryBuilder.sort(key).build();
+        return redisTemplate.sort(sortQuery);
     }
 }

@@ -35,4 +35,8 @@ public interface RedisConstants {
     String POSITION = "CamelRedis.Position";
     String PIVOT = "CamelRedis.Pivot";
     String COUNT = "CamelRedis.Count";
+    String TIMESTAMP = "CamelRedis.Timestamp";
+    String PATTERN = "CamelRedis.Pattern";
+    String DB = "CamelRedis.Db";
+
 }

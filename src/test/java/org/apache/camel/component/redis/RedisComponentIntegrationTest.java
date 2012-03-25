@@ -25,6 +25,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 @Ignore
 public class RedisComponentIntegrationTest extends RedisTestSupport {
     public static final JedisConnectionFactory CONNECTION_FACTORY = new JedisConnectionFactory();
+
     static {
         CONNECTION_FACTORY.afterPropertiesSet();
     }

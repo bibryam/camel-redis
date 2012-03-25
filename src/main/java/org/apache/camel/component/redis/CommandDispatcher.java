@@ -10,7 +10,6 @@ import org.apache.camel.Message;
 public class CommandDispatcher {
     private final RedisConfiguration configuration;
     private final Exchange exchange;
-    private Object count;
 
     public CommandDispatcher(RedisConfiguration configuration, Exchange exchange) {
         this.configuration = configuration;
@@ -33,28 +32,28 @@ public class CommandDispatcher {
             redisClient.quit();
             break;
         case EXISTS:
-            notImplemented();
+            setResult(redisClient.exists(getKey()));
             break;
         case DEL:
-            notImplemented();
+            redisClient.del(getKeys());
             break;
         case TYPE:
-            notImplemented();
+            setResult(redisClient.type(getKey()));
             break;
         case FLUSHDB:
             notImplemented();
             break;
         case KEYS:
-            notImplemented();
+            setResult(redisClient.keys(getPattern()));
             break;
         case RANDOMKEY:
-            notImplemented();
+            setResult(redisClient.randomkey());
             break;
         case RENAME:
-            notImplemented();
+            redisClient.rename(getKey(), getValue());
             break;
         case RENAMENX:
-            notImplemented();
+            setResult(redisClient.renamenx(getKey(), getValue()));
             break;
         case RENAMEX:
             notImplemented();
@@ -63,19 +62,25 @@ public class CommandDispatcher {
             notImplemented();
             break;
         case EXPIRE:
-            notImplemented();
+            setResult(redisClient.expire(getKey(), getTimeout()));
             break;
         case EXPIREAT:
-            notImplemented();
+            setResult(redisClient.expireat(getKey(), getTimestamp()));
+            break;
+        case PEXPIRE:
+            setResult(redisClient.pexpire(getKey(), getTimeout()));
+            break;
+        case PEXPIREAT:
+            setResult(redisClient.pexpireat(getKey(), getTimestamp()));
             break;
         case TTL:
-            notImplemented();
+            setResult(redisClient.ttl(getKey()));
             break;
         case SELECT:
             notImplemented();
             break;
         case MOVE:
-            notImplemented();
+            setResult(redisClient.move(getKey(), getDb()));
             break;
         case FLUSHALL:
             notImplemented();
@@ -270,7 +275,7 @@ public class CommandDispatcher {
             redisClient.unwatch();
             break;
         case SORT:
-            notImplemented();
+            setResult(redisClient.sort(getKey()));
             break;
         case BLPOP:
             setResult(redisClient.blpop(getKey(), getTimeout()));
@@ -354,7 +359,7 @@ public class CommandDispatcher {
             notImplemented();
             break;
         case PERSIST:
-            notImplemented();
+            setResult(redisClient.persist(getKey()));
             break;
         case RPUSHX:
             setResult(redisClient.rpushx(getKey(), getValue()));
@@ -488,5 +493,17 @@ public class CommandDispatcher {
 
     private String getField() {
         return getInHeaderValue(exchange, RedisConstants.FIELD, String.class);
+    }
+
+    public Long getTimestamp() {
+        return getInHeaderValue(exchange, RedisConstants.TIMESTAMP, Long.class);
+    }
+
+    public String getPattern() {
+        return getInHeaderValue(exchange, RedisConstants.PATTERN, String.class);
+    }
+
+    public Integer getDb() {
+        return getInHeaderValue(exchange, RedisConstants.DB, Integer.class);
     }
 }
