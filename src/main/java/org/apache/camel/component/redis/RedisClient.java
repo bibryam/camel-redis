@@ -401,4 +401,72 @@ public class RedisClient {
         SortQuery<String> sortQuery = SortQueryBuilder.sort(key).build();
         return redisTemplate.sort(sortQuery);
     }
+
+    public Boolean zadd(String key, String value, Double score) {
+        return redisTemplate.opsForZSet().add(key, value, score);
+    }
+
+    public Long zcard(String key) {
+        return redisTemplate.opsForZSet().size(key);
+    }
+
+    public Long zcount(String key, Double min, Double max) {
+        return redisTemplate.opsForZSet().count(key, min, max);
+    }
+
+    public Double zincrby(String key, String value, Double increment) {
+        return redisTemplate.opsForZSet().incrementScore(key, value, increment);
+    }
+
+    public void zinterstore(String key, Collection<String> keys, String destination) {
+        redisTemplate.opsForZSet().intersectAndStore(key, keys, destination);
+    }
+
+    public Object zrange(String key, Long start, Long end, Boolean withScore) {
+        if (withScore != null && withScore) {
+            return redisTemplate.opsForZSet().rangeWithScores(key, start, end);
+        }
+        return redisTemplate.opsForZSet().range(key, start, end);
+    }
+
+    public Set<String> zrangebyscore(String key, Double min, Double max) {
+        return redisTemplate.opsForZSet().rangeByScore(key, min, max);
+    }
+
+    public Long zrank(String key, String value) {
+        return redisTemplate.opsForZSet().rank(key, value);
+    }
+
+    public Boolean zrem(String key, String value) {
+        return redisTemplate.opsForZSet().remove(key, value);
+    }
+
+    public void zremrangebyrank(String key, Long start, Long end) {
+        redisTemplate.opsForZSet().removeRange(key, start, end);
+    }
+
+    public void zremrangebyscore(String key, Long start, Long end) {
+        redisTemplate.opsForZSet().removeRangeByScore(key, start, end);
+    }
+
+    public Object zrevrange(String key, Long start, Long end, Boolean withScore) {
+        if (withScore != null && withScore) {
+            return redisTemplate.opsForZSet().reverseRangeWithScores(key, start, end);
+        }
+
+        return redisTemplate.opsForZSet().reverseRange(key, start, end);
+    }
+
+    public Set<String> zrevrangebyscore(String key, Double min, Double max) {
+        return redisTemplate.opsForZSet().reverseRangeByScore(key, min, max);
+    }
+
+    public Long zrevrank(String key, String value) {
+        return redisTemplate.opsForZSet().reverseRank(key, value);
+    }
+
+
+    public void zunionstore(String key, Collection<String> keys, String destination) {
+        redisTemplate.opsForZSet().unionAndStore(key, keys, destination);
+    }
 }

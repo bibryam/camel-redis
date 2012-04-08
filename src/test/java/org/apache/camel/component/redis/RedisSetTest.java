@@ -51,7 +51,7 @@ public class RedisSetTest extends RedisTestSupport {
     }
 
     @Test
-    public void shouldExecuteHEXISTS() throws Exception {
+    public void shouldExecuteSCARD() throws Exception {
         when(setOperations.size(anyString())).thenReturn(2L);
 
         Object result = sendHeaders(

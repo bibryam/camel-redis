@@ -38,5 +38,9 @@ public interface RedisConstants {
     String TIMESTAMP = "CamelRedis.Timestamp";
     String PATTERN = "CamelRedis.Pattern";
     String DB = "CamelRedis.Db";
-
+    String SCORE = "CamelRedis.Score";
+    String MIN = "CamelRedis.Min";
+    String MAX = "CamelRedis.Max";
+    String INCREMENT = "CamelRedis.Increment";
+    String WITHSCORE = "CamelRedis.WithScore";
 }

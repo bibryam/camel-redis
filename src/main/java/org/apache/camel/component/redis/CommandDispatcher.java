@@ -233,28 +233,28 @@ public class CommandDispatcher {
             setResult(redisClient.srandmember(getKey()));
             break;
         case ZADD:
-            notImplemented();
+            setResult(redisClient.zadd(getKey(), getValue(), getScore()));
             break;
         case ZRANGE:
-            notImplemented();
+            setResult(redisClient.zrange(getKey(), getStart(), getEnd(), getWithScore()));
             break;
         case ZREM:
-            notImplemented();
+            setResult(redisClient.zrem(getKey(), getValue()));
             break;
         case ZINCRBY:
-            notImplemented();
+            setResult(redisClient.zincrby(getKey(), getValue(), getIncrement()));
             break;
         case ZRANK:
-            notImplemented();
+            setResult(redisClient.zrank(getKey(), getValue()));
             break;
         case ZREVRANK:
-            notImplemented();
+            setResult(redisClient.zrevrank(getKey(), getValue()));
             break;
         case ZREVRANGE:
-            notImplemented();
+            setResult(redisClient.zrevrange(getKey(), getStart(), getEnd(), getWithScore()));
             break;
         case ZCARD:
-            notImplemented();
+            setResult(redisClient.zcard(getKey()));
             break;
         case ZSCORE:
             notImplemented();
@@ -302,25 +302,25 @@ public class CommandDispatcher {
             notImplemented();
             break;
         case ZCOUNT:
-            notImplemented();
+            setResult(redisClient.zcount(getKey(), getMin(), getMax()));
             break;
         case ZRANGEBYSCORE:
-            notImplemented();
+            setResult(redisClient.zrangebyscore(getKey(), getMin(), getMax()));
             break;
         case ZREVRANGEBYSCORE:
-            notImplemented();
+            setResult(redisClient.zrevrangebyscore(getKey(), getMin(), getMax()));
             break;
         case ZREMRANGEBYRANK:
-            notImplemented();
+            redisClient.zremrangebyrank(getKey(), getStart(), getEnd());
             break;
         case ZREMRANGEBYSCORE:
-            notImplemented();
+            redisClient.zremrangebyscore(getKey(), getStart(), getEnd());
             break;
         case ZUNIONSTORE:
-            notImplemented();
+            redisClient.zunionstore(getKey(), getKeys(), getDestination());
             break;
         case ZINTERSTORE:
-            notImplemented();
+            redisClient.zinterstore(getKey(), getKeys(), getDestination());
             break;
         case SAVE:
             notImplemented();
@@ -505,5 +505,25 @@ public class CommandDispatcher {
 
     public Integer getDb() {
         return getInHeaderValue(exchange, RedisConstants.DB, Integer.class);
+    }
+
+    public Double getScore() {
+        return getInHeaderValue(exchange, RedisConstants.SCORE, Double.class);
+    }
+
+    public Double getMin() {
+        return getInHeaderValue(exchange, RedisConstants.MIN, Double.class);
+    }
+
+    public Double getMax() {
+        return getInHeaderValue(exchange, RedisConstants.MAX, Double.class);
+    }
+
+    public Double getIncrement() {
+        return getInHeaderValue(exchange, RedisConstants.INCREMENT, Double.class);
+    }
+
+    public Boolean getWithScore() {
+        return getInHeaderValue(exchange, RedisConstants.WITHSCORE, Boolean.class);
     }
 }
