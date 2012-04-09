@@ -19,6 +19,7 @@ package org.apache.camel.component.redis;
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
+import org.apache.camel.component.direct.DirectEndpoint;
 import org.apache.camel.impl.DefaultEndpoint;
 
 import redis.clients.jedis.Jedis;
@@ -26,7 +27,7 @@ import redis.clients.jedis.Jedis;
 /**
  * Represents a Redis endpoint.
  */
-public class RedisEndpoint extends DefaultEndpoint {
+public class RedisEndpoint extends DirectEndpoint {
     private RedisConfiguration configuration;
 
     public RedisEndpoint(String uri, RedisComponent component, RedisConfiguration configuration) {
@@ -39,7 +40,7 @@ public class RedisEndpoint extends DefaultEndpoint {
     }
 
     public Consumer createConsumer(Processor processor) throws Exception {
-        throw new UnsupportedOperationException("Consumer not supported for Redis endpoint");
+        return new RedisConsumer(this, processor, configuration);
     }
 
     public boolean isSingleton() {
