@@ -4,5 +4,5 @@ A Redis connector for Apache Camel using Spring Redis Template.
 
 Not production ready yet!
 
-Apache Camel is a open-source integration framework: http://camel.apache.org/
-Redis is an open source, advanced key-value store: http://redis.io/
+Apache Camel is an open-source integration framework: http://camel.apache.org
+Redis is an open source advanced key-value store: http://redis.io
