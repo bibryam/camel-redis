@@ -19,7 +19,6 @@ package org.apache.camel.component.redis;
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultProducer;
 import org.apache.camel.util.URISupport;
-import org.springframework.data.redis.core.RedisTemplate;
 
 /**
  * The Redis producer.
@@ -27,9 +26,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 public class RedisProducer extends DefaultProducer {
     private final RedisClient redisClient;
 
-    public RedisProducer(RedisEndpoint endpoint, RedisTemplate<String, String> redisTemplate) {
+    public RedisProducer(RedisEndpoint endpoint, RedisConfiguration configuration) {
         super(endpoint);
-        redisClient = new RedisClient(redisTemplate);
+        redisClient = new RedisClient(configuration.getRedisTemplate());
     }
 
     public void process(final Exchange exchange) throws Exception {

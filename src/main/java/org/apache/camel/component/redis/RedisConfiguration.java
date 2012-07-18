@@ -8,10 +8,9 @@ import redis.clients.jedis.Jedis;
 public class RedisConfiguration {
     private String command;
     private String channels;
-    private Jedis jedis;
     private Integer timeout;
-    private String host = "localhost";
-    private Integer port = 6379;
+    private String host;
+    private Integer port;
     private RedisTemplate<String, String> redisTemplate;
     private RedisMessageListenerContainer listenerContainer;
 
@@ -21,14 +20,6 @@ public class RedisConfiguration {
 
     public void setCommand(String command) {
         this.command = command;
-    }
-
-    public Jedis getJedis() {
-        return jedis;
-    }
-
-    public void setJedis(Jedis jedis) {
-        this.jedis = jedis;
     }
 
     public Integer getPort() {

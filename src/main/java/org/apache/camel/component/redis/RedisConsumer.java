@@ -53,6 +53,5 @@ public class RedisConsumer extends DirectConsumer implements MessageListener {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
     }
 }

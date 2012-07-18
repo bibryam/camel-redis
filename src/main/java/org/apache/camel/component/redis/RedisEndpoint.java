@@ -20,9 +20,6 @@ import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
 import org.apache.camel.component.direct.DirectEndpoint;
-import org.apache.camel.impl.DefaultEndpoint;
-
-import redis.clients.jedis.Jedis;
 
 /**
  * Represents a Redis endpoint.
@@ -36,7 +33,7 @@ public class RedisEndpoint extends DirectEndpoint {
     }
 
     public Producer createProducer() throws Exception {
-        return new RedisProducer(this, configuration.getRedisTemplate());
+        return new RedisProducer(this, configuration);
     }
 
     public Consumer createConsumer(Processor processor) throws Exception {
@@ -49,12 +46,5 @@ public class RedisEndpoint extends DirectEndpoint {
 
     public RedisConfiguration getConfiguration() {
         return configuration;
-    }
-
-    private Jedis getJedis() {
-        if (configuration.getJedis() != null) {
-            return configuration.getJedis();
-        }
-        return new Jedis(configuration.getHost(), configuration.getPort());
     }
 }

@@ -37,10 +37,10 @@ public class RedisComponent extends DefaultComponent {
 
     private void setHostAndPort(RedisConfiguration configuration, String remaining) {
         String[] hostAndPort = remaining.split(":");
-        if (hostAndPort[0].length() > 0) {
+        if (hostAndPort.length > 0 && hostAndPort[0].length() > 0) {
             configuration.setHost(hostAndPort[0]);
         }
-        if (hostAndPort[1].length() > 0) {
+        if (hostAndPort.length > 1 && hostAndPort[1].length() > 0) {
             configuration.setPort(Integer.parseInt(hostAndPort[1]));
         }
     }
