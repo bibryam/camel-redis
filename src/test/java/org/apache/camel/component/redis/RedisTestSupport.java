@@ -20,7 +20,7 @@ public class RedisTestSupport extends CamelTestSupport {
         return new RouteBuilder() {
             public void configure() {
                 from("direct:start")
-                        .to("redis://localhost:8080?redisTemplate=#redisTemplate");
+                        .to("redis://localhost:6379?redisTemplate=#redisTemplate");
             }
         };
     }

@@ -62,8 +62,8 @@ public class RedisConsumerTest extends CamelTestSupport {
         verify(listenerContainer).addMessageListener(messageListenerCaptor.capture(), any(Collection.class));
 
         MessageListener messageListener = messageListenerCaptor.getValue();
-        messageListener.onMessage(new DefaultMessage(null, "first message".getBytes()), null);
-        messageListener.onMessage(new DefaultMessage(null, "second message".getBytes()), null);
+        messageListener.onMessage(new DefaultMessage("one".getBytes(), "first message".getBytes()), null);
+        messageListener.onMessage(new DefaultMessage("two".getBytes(), "second message".getBytes()), null);
 
         mock.assertIsSatisfied();
     }
@@ -71,7 +71,7 @@ public class RedisConsumerTest extends CamelTestSupport {
     protected RouteBuilder createRouteBuilder() {
         return new RouteBuilder() {
             public void configure() {
-                from("redis://localhost:9090?command=SUBSCRIBE&channels=one,two&listenerContainer=#listenerContainer")
+                from("redis://localhost:6379?command=SUBSCRIBE&channels=one,two&listenerContainer=#listenerContainer")
                         .to("mock:result");
             }
         };
