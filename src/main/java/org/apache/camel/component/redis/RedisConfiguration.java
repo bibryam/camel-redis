@@ -1,8 +1,11 @@
 package org.apache.camel.component.redis;
 
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializer;
 
 public class RedisConfiguration {
     private String command;
@@ -12,6 +15,8 @@ public class RedisConfiguration {
     private Integer port;
     private RedisTemplate<String, String> redisTemplate;
     private RedisMessageListenerContainer listenerContainer;
+    private RedisConnectionFactory connectionFactory;
+    private RedisSerializer serializer;
 
     public String getCommand() {
         return command;
@@ -69,36 +74,51 @@ public class RedisConfiguration {
         this.channels = channels;
     }
 
-    private RedisTemplate<String, String> createDefaultTemplate() {
-        JedisConnectionFactory connectionFactory = new JedisConnectionFactory();
+    public void setConnectionFactory(RedisConnectionFactory connectionFactory) {
+        this.connectionFactory = connectionFactory;
+    }
+
+    public RedisConnectionFactory getConnectionFactory() {
+        return connectionFactory != null ? connectionFactory : createDefaultConnectionFactory();
+    }
+
+    public RedisSerializer getSerializer() {
+        return serializer != null ? serializer : createDefaultSerializer();
+    }
+
+    public void setSerializer(RedisSerializer serializer) {
+        this.serializer = serializer;
+    }
+
+    private RedisConnectionFactory createDefaultConnectionFactory() {
+        JedisConnectionFactory jedisConnectionFactory = new JedisConnectionFactory();
         if (host != null) {
-            connectionFactory.setHostName(host);
+            jedisConnectionFactory.setHostName(host);
         }
         if (port != null) {
-            connectionFactory.setPort(port);
+            jedisConnectionFactory.setPort(port);
         }
-        connectionFactory.afterPropertiesSet();
+        jedisConnectionFactory.afterPropertiesSet();
+        connectionFactory = jedisConnectionFactory;
+        return jedisConnectionFactory;
+    }
+
+    private RedisTemplate<String, String> createDefaultTemplate() {
         redisTemplate = new RedisTemplate();
-        redisTemplate.setConnectionFactory(connectionFactory);
+        redisTemplate.setConnectionFactory(getConnectionFactory());
         redisTemplate.afterPropertiesSet();
         return redisTemplate;
     }
 
     private RedisMessageListenerContainer createDefaultListenerContainer() {
-        JedisConnectionFactory connectionFactory = new JedisConnectionFactory();
-        if (host != null) {
-            connectionFactory.setHostName(host);
-        }
-        if (port != null) {
-            connectionFactory.setPort(port);
-        }
-        connectionFactory.afterPropertiesSet();
-
         listenerContainer = new RedisMessageListenerContainer();
-
-        listenerContainer.setConnectionFactory(connectionFactory);
+        listenerContainer.setConnectionFactory(getConnectionFactory());
         listenerContainer.afterPropertiesSet();
         return listenerContainer;
     }
 
+    private RedisSerializer createDefaultSerializer() {
+        serializer = new JdkSerializationRedisSerializer();
+        return serializer;
+    }
 }
