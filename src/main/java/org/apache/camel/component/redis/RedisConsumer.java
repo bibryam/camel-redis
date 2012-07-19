@@ -28,17 +28,12 @@ public class RedisConsumer extends DirectConsumer implements MessageListener {
         super.doStart();
         Collection<Topic> topics = toTopics(redisConfiguration.getChannels());
         redisConfiguration.getListenerContainer().addMessageListener(this, topics);
-
-
     }
 
     private Collection<Topic> toTopics(String channels) {
         String[] channelsArrays = channels.split(",");
         List<Topic> topics = new ArrayList<Topic>();
         for (String channel : channelsArrays) {
-            System.out.println("channel"  + channel);
-            System.out.println("redisConfiguration.getCommand()"  + redisConfiguration.getCommand());
-
             if (Command.PSUBSCRIBE.toString().equals(redisConfiguration.getCommand())) {
                 topics.add(new PatternTopic(channel));
             } else if (Command.SUBSCRIBE.toString().equals(redisConfiguration.getCommand())) {

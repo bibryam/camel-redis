@@ -1,9 +1,8 @@
 package org.apache.camel.component.redis;
 
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
-
-import redis.clients.jedis.Jedis;
 
 public class RedisConfiguration {
     private String command;
@@ -47,7 +46,7 @@ public class RedisConfiguration {
     }
 
     public RedisTemplate<String, String> getRedisTemplate() {
-        return redisTemplate;
+        return redisTemplate != null ? redisTemplate : createDefaultTemplate();
     }
 
     public void setRedisTemplate(RedisTemplate<String, String> redisTemplate) {
@@ -55,7 +54,7 @@ public class RedisConfiguration {
     }
 
     public RedisMessageListenerContainer getListenerContainer() {
-        return listenerContainer;
+        return listenerContainer != null ? listenerContainer : createDefaultListenerContainer();
     }
 
     public void setListenerContainer(RedisMessageListenerContainer listenerContainer) {
@@ -69,4 +68,37 @@ public class RedisConfiguration {
     public void setChannels(String channels) {
         this.channels = channels;
     }
+
+    private RedisTemplate<String, String> createDefaultTemplate() {
+        JedisConnectionFactory connectionFactory = new JedisConnectionFactory();
+        if (host != null) {
+            connectionFactory.setHostName(host);
+        }
+        if (port != null) {
+            connectionFactory.setPort(port);
+        }
+        connectionFactory.afterPropertiesSet();
+        redisTemplate = new RedisTemplate();
+        redisTemplate.setConnectionFactory(connectionFactory);
+        redisTemplate.afterPropertiesSet();
+        return redisTemplate;
+    }
+
+    private RedisMessageListenerContainer createDefaultListenerContainer() {
+        JedisConnectionFactory connectionFactory = new JedisConnectionFactory();
+        if (host != null) {
+            connectionFactory.setHostName(host);
+        }
+        if (port != null) {
+            connectionFactory.setPort(port);
+        }
+        connectionFactory.afterPropertiesSet();
+
+        listenerContainer = new RedisMessageListenerContainer();
+
+        listenerContainer.setConnectionFactory(connectionFactory);
+        listenerContainer.afterPropertiesSet();
+        return listenerContainer;
+    }
+
 }
