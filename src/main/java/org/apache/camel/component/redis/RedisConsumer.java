@@ -1,5 +1,6 @@
 package org.apache.camel.component.redis;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -12,7 +13,6 @@ import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.Topic;
-import org.springframework.data.redis.serializer.RedisSerializer;
 
 public class RedisConsumer extends DirectConsumer implements MessageListener {
     private final RedisConfiguration redisConfiguration;
@@ -47,16 +47,32 @@ public class RedisConsumer extends DirectConsumer implements MessageListener {
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
-        Object body = redisConfiguration.getSerializer().deserialize(message.getBody());
-
-        Exchange exchange = getEndpoint().createExchange();
-        exchange.getIn().setHeader(RedisConstants.CHANNEL, message.getChannel());
-        exchange.getIn().setHeader(RedisConstants.PATTERN, pattern);
-        exchange.getIn().setBody(body);
         try {
+            Exchange exchange = getEndpoint().createExchange();
+            setChannel(exchange, message.getChannel());
+            setPattern(exchange, pattern);
+            setBody(exchange, message.getBody());
             getProcessor().process(exchange);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void setBody(Exchange exchange, byte[] body) {
+        if (body != null) {
+            exchange.getIn().setBody(redisConfiguration.getSerializer().deserialize(body));
+        }
+    }
+
+    private void setPattern(Exchange exchange, byte[] pattern) {
+        if (pattern != null) {
+            exchange.getIn().setHeader(RedisConstants.PATTERN, pattern);
+        }
+    }
+
+    private void setChannel(Exchange exchange, byte[] message) throws UnsupportedEncodingException {
+        if (message != null) {
+            exchange.getIn().setHeader(RedisConstants.CHANNEL, new String(message, "UTF8"));
         }
     }
 }

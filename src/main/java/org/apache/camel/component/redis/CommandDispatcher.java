@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
+import org.apache.camel.RuntimeExchangeException;
 
 public class CommandDispatcher {
     private final RedisConfiguration configuration;
@@ -390,12 +391,12 @@ public class CommandDispatcher {
             setResult(redisClient.getrange(getKey(), getStart(), getEnd()));
             break;
         default:
-            throw new IllegalArgumentException("Unsupported command");
+            throw new RuntimeExchangeException("Unsupported command", exchange);
         }
     }
 
     private void notImplemented() {
-        throw new IllegalArgumentException("Not implemented command");
+        throw new RuntimeExchangeException("Unsupported command", exchange);
     }
 
     private Command determineCommand() {
