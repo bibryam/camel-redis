@@ -2,6 +2,7 @@ package org.apache.camel.component.redis;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.camel.Exchange;
@@ -50,10 +51,10 @@ public class CommandDispatcher {
             setResult(redisClient.randomkey());
             break;
         case RENAME:
-            redisClient.rename(getKey(), getValue());
+            redisClient.rename(getKey(), getStringValue());
             break;
         case RENAMENX:
-            setResult(redisClient.renamenx(getKey(), getValue()));
+            setResult(redisClient.renamenx(getKey(), getStringValue()));
             break;
         case RENAMEX:
             notImplemented();
@@ -104,19 +105,19 @@ public class CommandDispatcher {
             redisClient.msetnx(getValuesAsMap());
             break;
         case DECRBY:
-            setResult(redisClient.decrby(getKey(), Long.valueOf(getValue())));
+            setResult(redisClient.decrby(getKey(), getLongValue()));
             break;
         case DECR:
             setResult(redisClient.decr(getKey()));
             break;
         case INCRBY:
-            setResult(redisClient.incrby(getKey(), Long.valueOf(getValue())));
+            setResult(redisClient.incrby(getKey(), getLongValue()));
             break;
         case INCR:
             setResult(redisClient.incr(getKey()));
             break;
         case APPEND:
-            setResult(redisClient.append(getKey(), getValue()));
+            setResult(redisClient.append(getKey(), getStringValue()));
             break;
         case SUBSTR:
             notImplemented();
@@ -365,7 +366,7 @@ public class CommandDispatcher {
             setResult(redisClient.rpushx(getKey(), getValue()));
             break;
         case ECHO:
-            setResult(redisClient.echo(getValue()));
+            setResult(redisClient.echo(getStringValue()));
             break;
         case LINSERT:
             setResult(redisClient.linsert(getKey(), getValue(), getPivot(), getPosition()));
@@ -377,7 +378,7 @@ public class CommandDispatcher {
             setResult(redisClient.brpoplpush(getKey(), getDestination(), getTimeout()));
             break;
         case SETBIT:
-            redisClient.setbit(getKey(), getOffset(), Boolean.valueOf(getValue()));
+            redisClient.setbit(getKey(), getOffset(), getBooleanValue());
             break;
         case GETBIT:
             setResult(redisClient.getbit(getKey(), getOffset()));
@@ -394,7 +395,7 @@ public class CommandDispatcher {
     }
 
     private void notImplemented() {
-        setResult("Not implemented");
+        throw new IllegalArgumentException("Not implemented command");
     }
 
     private Command determineCommand() {
@@ -475,8 +476,8 @@ public class CommandDispatcher {
         return getInHeaderValue(exchange, RedisConstants.FIELDS, Collection.class);
     }
 
-    private HashMap getValuesAsMap() {
-        return getInHeaderValue(exchange, RedisConstants.VALUES, new HashMap<String, String>().getClass());
+    private Map<String, Object> getValuesAsMap() {
+        return getInHeaderValue(exchange, RedisConstants.VALUES, new HashMap<String, Object>().getClass());
     }
 
     private String getKey() {
@@ -487,8 +488,20 @@ public class CommandDispatcher {
         return getInHeaderValue(exchange, RedisConstants.KEYS, Collection.class);
     }
 
-    private String getValue() {
+    private Object getValue() {
+        return getInHeaderValue(exchange, RedisConstants.VALUE, Object.class);
+    }
+
+    private String getStringValue() {
         return getInHeaderValue(exchange, RedisConstants.VALUE, String.class);
+    }
+
+    private Long getLongValue() {
+        return getInHeaderValue(exchange, RedisConstants.VALUE, Long.class);
+    }
+
+    private Boolean getBooleanValue() {
+        return getInHeaderValue(exchange, RedisConstants.VALUE, Boolean.class);
     }
 
     private String getField() {

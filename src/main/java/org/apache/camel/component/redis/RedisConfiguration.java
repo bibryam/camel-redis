@@ -13,7 +13,7 @@ public class RedisConfiguration {
     private Integer timeout;
     private String host;
     private Integer port;
-    private RedisTemplate<String, String> redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
     private RedisMessageListenerContainer listenerContainer;
     private RedisConnectionFactory connectionFactory;
     private RedisSerializer serializer;
@@ -50,11 +50,11 @@ public class RedisConfiguration {
         this.timeout = timeout;
     }
 
-    public RedisTemplate<String, String> getRedisTemplate() {
+    public RedisTemplate<String, Object> getRedisTemplate() {
         return redisTemplate != null ? redisTemplate : createDefaultTemplate();
     }
 
-    public void setRedisTemplate(RedisTemplate<String, String> redisTemplate) {
+    public void setRedisTemplate(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
@@ -103,8 +103,8 @@ public class RedisConfiguration {
         return jedisConnectionFactory;
     }
 
-    private RedisTemplate<String, String> createDefaultTemplate() {
-        redisTemplate = new RedisTemplate();
+    private RedisTemplate<String, Object> createDefaultTemplate() {
+        redisTemplate = new RedisTemplate<String, Object>();
         redisTemplate.setConnectionFactory(getConnectionFactory());
         redisTemplate.afterPropertiesSet();
         return redisTemplate;

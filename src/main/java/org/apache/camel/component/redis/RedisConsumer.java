@@ -47,12 +47,12 @@ public class RedisConsumer extends DirectConsumer implements MessageListener {
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
-        Object value = redisConfiguration.getSerializer().deserialize(message.getBody());
+        Object body = redisConfiguration.getSerializer().deserialize(message.getBody());
 
         Exchange exchange = getEndpoint().createExchange();
         exchange.getIn().setHeader(RedisConstants.CHANNEL, message.getChannel());
         exchange.getIn().setHeader(RedisConstants.PATTERN, pattern);
-        exchange.getIn().setBody(value);
+        exchange.getIn().setBody(body);
         try {
             getProcessor().process(exchange);
         } catch (Exception e) {

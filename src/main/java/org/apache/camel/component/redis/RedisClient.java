@@ -2,7 +2,6 @@ package org.apache.camel.component.redis;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,54 +16,54 @@ import org.springframework.data.redis.core.query.SortQuery;
 import org.springframework.data.redis.core.query.SortQueryBuilder;
 
 public class RedisClient {
-    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
-    public RedisClient(RedisTemplate<String, String> redisTemplate) {
+    public RedisClient(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
-    public void set(String key, String value) {
+    public void set(String key, Object value) {
         redisTemplate.opsForValue().set(key, value);
     }
 
-    public void hmset(String key, HashMap param) {
+    public void hmset(String key, Map<String, Object> param) {
         redisTemplate.opsForHash().putAll(key, param);
     }
 
-    public Collection<String> hmget(String key, Collection<String> fields) {
-        return redisTemplate.<String, String>opsForHash().multiGet(key, fields);
+    public Collection<Object> hmget(String key, Collection<String> fields) {
+        return redisTemplate.<String, Object>opsForHash().multiGet(key, fields);
     }
 
     public Set<String> hkeys(String key) {
-        return redisTemplate.<String, String>opsForHash().keys(key);
+        return redisTemplate.<String, Object>opsForHash().keys(key);
     }
 
     public Long hlen(String key) {
-        return redisTemplate.opsForHash().size(key);
+        return redisTemplate.<String, Object>opsForHash().size(key);
     }
 
     public Long hincrBy(String key, String field, Long value) {
-        return redisTemplate.opsForHash().increment(key, field, value);
+        return redisTemplate.<String, Object>opsForHash().increment(key, field, value);
     }
 
-    public Map<String, String> hgetAll(String key) {
-        return redisTemplate.<String, String>opsForHash().entries(key);
+    public Map<String, Object> hgetAll(String key) {
+        return redisTemplate.<String, Object>opsForHash().entries(key);
     }
 
     public Boolean hexists(String key, String field) {
-        return redisTemplate.opsForHash().hasKey(key, field);
+        return redisTemplate.<String, Object>opsForHash().hasKey(key, field);
     }
 
-    public String hget(String key, String field) {
-        return redisTemplate.<String, String>opsForHash().get(key, field);
+    public Object hget(String key, String field) {
+        return redisTemplate.<String, Object>opsForHash().get(key, field);
     }
 
     public void hdel(String key, String field) {
-        redisTemplate.opsForHash().delete(key, field);
+        redisTemplate.<String, Object>opsForHash().delete(key, field);
     }
 
-    public void hset(String key, String field, String value) {
-        redisTemplate.opsForHash().put(key, field, value);
+    public void hset(String key, String field, Object value) {
+        redisTemplate.<String, Object>opsForHash().put(key, field, value);
     }
 
     public void quit() {
@@ -77,21 +76,20 @@ public class RedisClient {
         });
     }
 
-    public String get(String key) {
+    public Object get(String key) {
         return redisTemplate.opsForValue().get(key);
     }
 
-    public Collection<String> hvals(String key) {
-        return redisTemplate.<String, String>opsForHash().values(key);
+    public Collection<Object> hvals(String key) {
+        return redisTemplate.<String, Object>opsForHash().values(key);
     }
 
-    public Boolean hsetnx(String key, String field, String value) {
-        return redisTemplate.opsForHash().putIfAbsent(key, field, value);
+    public Boolean hsetnx(String key, String field, Object value) {
+        return redisTemplate.<String, Object>opsForHash().putIfAbsent(key, field, value);
     }
 
     public Long decr(String key) {
         return redisTemplate.opsForValue().increment(key, -1L);
-
     }
 
     public Long decrby(String key, Long value) {
@@ -114,31 +112,31 @@ public class RedisClient {
         return redisTemplate.opsForValue().size(key);
     }
 
-    public List<String> mget(Collection<String> fields) {
+    public List<Object> mget(Collection<String> fields) {
         return redisTemplate.opsForValue().multiGet(fields);
     }
 
-    public void mset(Map<String, String> map) {
+    public void mset(Map<String, Object> map) {
         redisTemplate.opsForValue().multiSet(map);
     }
 
-    public void msetnx(Map<String, String> map) {
+    public void msetnx(Map<String, Object> map) {
         redisTemplate.opsForValue().multiSetIfAbsent(map);
     }
 
-    public String getset(String key, String value) {
+    public Object getset(String key, Object value) {
         return redisTemplate.opsForValue().getAndSet(key, value);
     }
 
-    public Boolean setnx(String key, String value) {
+    public Boolean setnx(String key, Object value) {
         return redisTemplate.opsForValue().setIfAbsent(key, value);
     }
 
-    public void setex(String key, String value, Long timeout, TimeUnit timeUnit) {
+    public void setex(String key, Object value, Long timeout, TimeUnit timeUnit) {
         redisTemplate.opsForValue().set(key, value, timeout, timeUnit);
     }
 
-    public void setex(String key, String value, Long offset) {
+    public void setex(String key, Object value, Long offset) {
         redisTemplate.opsForValue().set(key, value, offset);
     }
 
@@ -185,26 +183,23 @@ public class RedisClient {
         redisTemplate.watch(keys);
     }
 
-    public Boolean sadd(String key, String value) {
+    public Boolean sadd(String key, Object value) {
         return redisTemplate.opsForSet().add(key, value);
-
     }
 
     public Long scard(String key) {
         return redisTemplate.opsForSet().size(key);
-
     }
 
-    public Set<String> sdiff(String key, Collection<String> keys) {
+    public Set<Object> sdiff(String key, Collection<String> keys) {
         return redisTemplate.opsForSet().difference(key, keys);
     }
 
     public void sdiffstore(String key, Collection<String> keys, String destinations) {
         redisTemplate.opsForSet().differenceAndStore(key, keys, destinations);
-
     }
 
-    public Set<String> sinter(String key, Collection<String> keys) {
+    public Set<Object> sinter(String key, Collection<String> keys) {
         return redisTemplate.opsForSet().intersect(key, keys);
     }
 
@@ -212,32 +207,31 @@ public class RedisClient {
         redisTemplate.opsForSet().intersectAndStore(key, keys, destination);
     }
 
-    public Boolean sismember(String key, String value) {
+    public Boolean sismember(String key, Object value) {
         return redisTemplate.opsForSet().isMember(key, value);
     }
 
-    public Set<String> smembers(String key) {
+    public Set<Object> smembers(String key) {
         return redisTemplate.opsForSet().members(key);
     }
 
-    public Boolean smove(String key, String value, String destination) {
+    public Boolean smove(String key, Object value, String destination) {
         return redisTemplate.opsForSet().move(key, value, destination);
     }
 
-    public String spop(String key) {
+    public Object spop(String key) {
         return redisTemplate.opsForSet().pop(key);
-
     }
 
-    public String srandmember(String key) {
+    public Object srandmember(String key) {
         return redisTemplate.opsForSet().randomMember(key);
     }
 
-    public Boolean srem(String key, String value) {
+    public Boolean srem(String key, Object value) {
         return redisTemplate.opsForSet().remove(key, value);
     }
 
-    public Set<String> sunion(String key, Collection<String> keys) {
+    public Set<Object> sunion(String key, Collection<String> keys) {
         return redisTemplate.opsForSet().union(key, keys);
     }
 
@@ -275,7 +269,6 @@ public class RedisClient {
         return redisTemplate.opsForList().leftPop(key, timeout, TimeUnit.SECONDS);
     }
 
-
     public Object brpoplpush(String key, String destination, Long timeout) {
         return redisTemplate.opsForList().rightPopAndLeftPush(key, destination, timeout, TimeUnit.SECONDS);
     }
@@ -284,11 +277,11 @@ public class RedisClient {
         return redisTemplate.opsForList().rightPopAndLeftPush(key, destination);
     }
 
-    public String lindex(String key, Long index) {
+    public Object lindex(String key, Long index) {
         return redisTemplate.opsForList().index(key, index);
     }
 
-    public Long linsert(String key, String value, String pivot, String position) {
+    public Long linsert(String key, Object value, String pivot, String position) {
         if ("BEFORE".equals(position)) {
             return redisTemplate.opsForList().leftPush(key, pivot, value);
         } else if ("AFTER".equals(position)) {
@@ -298,29 +291,27 @@ public class RedisClient {
         }
     }
 
-    public String rpop(String key) {
+    public Object rpop(String key) {
         return redisTemplate.opsForList().rightPop(key);
     }
 
-    public String brpop(String key, Long timeout) {
+    public Object brpop(String key, Long timeout) {
         return redisTemplate.opsForList().rightPop(key, timeout, TimeUnit.SECONDS);
-
     }
 
     public Long llen(String key) {
         return redisTemplate.opsForList().size(key);
     }
 
-    public List<String> lrange(String key, Long start, Long end) {
+    public List<Object> lrange(String key, Long start, Long end) {
         return redisTemplate.opsForList().range(key, start, end);
-
     }
 
-    public Long lrem(String key, String value, Long count) {
+    public Long lrem(String key, Object value, Long count) {
         return redisTemplate.opsForList().remove(key, count, value);
     }
 
-    public void lset(String key, String value, Long index) {
+    public void lset(String key, Object value, Long index) {
         redisTemplate.opsForList().set(key, index, value);
     }
 
@@ -328,16 +319,15 @@ public class RedisClient {
         redisTemplate.opsForList().trim(key, start, end);
     }
 
-
-    public Long rpush(String key, String value) {
+    public Long rpush(String key, Object value) {
         return redisTemplate.opsForList().rightPush(key, value);
     }
 
-    public Long rpushx(String key, String value) {
+    public Long rpushx(String key, Object value) {
         return redisTemplate.opsForList().rightPushIfPresent(key, value);
     }
 
-    public Long lpush(String key, String value) {
+    public Long lpush(String key, Object value) {
         return redisTemplate.opsForList().leftPush(key, value);
     }
 
@@ -397,12 +387,12 @@ public class RedisClient {
         return redisTemplate.type(key);
     }
 
-    public List<String> sort(String key) {
+    public List<Object> sort(String key) {
         SortQuery<String> sortQuery = SortQueryBuilder.sort(key).build();
         return redisTemplate.sort(sortQuery);
     }
 
-    public Boolean zadd(String key, String value, Double score) {
+    public Boolean zadd(String key, Object value, Double score) {
         return redisTemplate.opsForZSet().add(key, value, score);
     }
 
@@ -414,7 +404,7 @@ public class RedisClient {
         return redisTemplate.opsForZSet().count(key, min, max);
     }
 
-    public Double zincrby(String key, String value, Double increment) {
+    public Double zincrby(String key, Object value, Double increment) {
         return redisTemplate.opsForZSet().incrementScore(key, value, increment);
     }
 
@@ -429,15 +419,15 @@ public class RedisClient {
         return redisTemplate.opsForZSet().range(key, start, end);
     }
 
-    public Set<String> zrangebyscore(String key, Double min, Double max) {
+    public Set<Object> zrangebyscore(String key, Double min, Double max) {
         return redisTemplate.opsForZSet().rangeByScore(key, min, max);
     }
 
-    public Long zrank(String key, String value) {
+    public Long zrank(String key, Object value) {
         return redisTemplate.opsForZSet().rank(key, value);
     }
 
-    public Boolean zrem(String key, String value) {
+    public Boolean zrem(String key, Object value) {
         return redisTemplate.opsForZSet().remove(key, value);
     }
 
@@ -457,14 +447,13 @@ public class RedisClient {
         return redisTemplate.opsForZSet().reverseRange(key, start, end);
     }
 
-    public Set<String> zrevrangebyscore(String key, Double min, Double max) {
+    public Set<Object> zrevrangebyscore(String key, Double min, Double max) {
         return redisTemplate.opsForZSet().reverseRangeByScore(key, min, max);
     }
 
-    public Long zrevrank(String key, String value) {
+    public Long zrevrank(String key, Object value) {
         return redisTemplate.opsForZSet().reverseRank(key, value);
     }
-
 
     public void zunionstore(String key, Collection<String> keys, String destination) {
         redisTemplate.opsForZSet().unionAndStore(key, keys, destination);

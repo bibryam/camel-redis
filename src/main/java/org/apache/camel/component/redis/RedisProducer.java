@@ -28,7 +28,7 @@ public class RedisProducer extends DefaultProducer {
 
     public RedisProducer(RedisEndpoint endpoint, RedisConfiguration configuration) {
         super(endpoint);
-         redisClient = new RedisClient(configuration.getRedisTemplate());
+        redisClient = new RedisClient(configuration.getRedisTemplate());
     }
 
     public void process(final Exchange exchange) throws Exception {
