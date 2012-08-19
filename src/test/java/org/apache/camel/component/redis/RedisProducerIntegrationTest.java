@@ -43,7 +43,7 @@ public class RedisProducerIntegrationTest extends RedisTestSupport {
 
     @Test
     public void shouldSetAString() throws Exception {
-        Object result = sendHeaders(
+        sendHeaders(
                 RedisConstants.COMMAND, "SET",
                 RedisConstants.KEY, "key1",
                 RedisConstants.VALUE, "value");

@@ -7,13 +7,13 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
-public class RedisConfiguration {
+public class RedisConfiguration{
     private String command;
     private String channels;
     private Integer timeout;
     private String host;
     private Integer port;
-    private RedisTemplate<String, Object> redisTemplate;
+    private RedisTemplate redisTemplate;
     private RedisMessageListenerContainer listenerContainer;
     private RedisConnectionFactory connectionFactory;
     private RedisSerializer serializer;
@@ -50,11 +50,11 @@ public class RedisConfiguration {
         this.timeout = timeout;
     }
 
-    public RedisTemplate<String, Object> getRedisTemplate() {
+    public RedisTemplate getRedisTemplate() {
         return redisTemplate != null ? redisTemplate : createDefaultTemplate();
     }
 
-    public void setRedisTemplate(RedisTemplate<String, Object> redisTemplate) {
+    public void setRedisTemplate(RedisTemplate redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
@@ -103,8 +103,8 @@ public class RedisConfiguration {
         return jedisConnectionFactory;
     }
 
-    private RedisTemplate<String, Object> createDefaultTemplate() {
-        redisTemplate = new RedisTemplate<String, Object>();
+    private RedisTemplate createDefaultTemplate() {
+        redisTemplate = new RedisTemplate();
         redisTemplate.setConnectionFactory(getConnectionFactory());
         redisTemplate.afterPropertiesSet();
         return redisTemplate;

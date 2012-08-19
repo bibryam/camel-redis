@@ -3,22 +3,38 @@ package org.apache.camel.component.redis.processor.idempotent;
 import org.apache.camel.api.management.ManagedAttribute;
 import org.apache.camel.api.management.ManagedOperation;
 import org.apache.camel.api.management.ManagedResource;
+import org.apache.camel.component.redis.RedisConfiguration;
 import org.apache.camel.spi.IdempotentRepository;
+import org.apache.camel.support.ServiceSupport;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SetOperations;
 
 @ManagedResource(description = "Redis based message id repository")
-public class RedisIdempotentRepository implements IdempotentRepository<String> {
+public class RedisIdempotentRepository extends ServiceSupport implements IdempotentRepository<String> {
     private final SetOperations<String, String> setOperations;
     private final String processorName;
+    private RedisConnectionFactory managedConnectionFactory;
 
     public RedisIdempotentRepository(RedisTemplate<String, String> redisTemplate, String processorName) {
-        setOperations = redisTemplate.opsForSet();
+        this.setOperations = redisTemplate.opsForSet();
         this.processorName = processorName;
     }
 
-    public static RedisIdempotentRepository redisIdempotentRepository(RedisTemplate<String, String> redisTemplate,
-                                                                      String processorName) {
+    public RedisIdempotentRepository (String processorName) {
+        RedisConfiguration redisConfiguration = new RedisConfiguration();
+        managedConnectionFactory = redisConfiguration.getConnectionFactory();
+        RedisTemplate<String, String> redisTemplate = redisConfiguration.getRedisTemplate();
+        this.setOperations = redisTemplate.opsForSet();
+        this.processorName = processorName;
+    }
+
+    public static RedisIdempotentRepository redisIdempotentRepository(String processorName) {
+        return new RedisIdempotentRepository(processorName);
+    }
+
+    public static RedisIdempotentRepository redisIdempotentRepository(RedisTemplate<String, String> redisTemplate, String processorName) {
         return new RedisIdempotentRepository(redisTemplate, processorName);
     }
 
@@ -47,12 +63,18 @@ public class RedisIdempotentRepository implements IdempotentRepository<String> {
         return true;
     }
 
-    public void start() throws Exception {
-        // noop
+    protected void doShutdown() throws Exception {
+        if (managedConnectionFactory != null && managedConnectionFactory instanceof JedisConnectionFactory) {
+                JedisConnectionFactory jedisConnectionFactory = (JedisConnectionFactory) managedConnectionFactory;
+            jedisConnectionFactory.destroy();
+        }
+        super.doShutdown();
     }
 
-    public void stop() throws Exception {
-        // noop
+    protected void doStart() throws Exception {
+    }
+
+    protected void doStop() throws Exception {
     }
 }
 

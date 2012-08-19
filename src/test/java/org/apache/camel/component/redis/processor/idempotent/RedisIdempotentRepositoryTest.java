@@ -23,7 +23,7 @@ public class RedisIdempotentRepositoryTest {
         redisTemplate = mock(RedisTemplate.class);
         setOperations = mock(SetOperations.class);
         when(redisTemplate.opsForSet()).thenReturn(setOperations);
-        idempotentRepository = new RedisIdempotentRepository(redisTemplate, REPOSITORY);
+        idempotentRepository = RedisIdempotentRepository.redisIdempotentRepository(redisTemplate, REPOSITORY);
     }
 
     @Test
