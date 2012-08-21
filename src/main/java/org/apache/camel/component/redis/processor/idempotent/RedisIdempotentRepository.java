@@ -15,16 +15,15 @@ import org.springframework.data.redis.core.SetOperations;
 public class RedisIdempotentRepository extends ServiceSupport implements IdempotentRepository<String> {
     private final SetOperations<String, String> setOperations;
     private final String processorName;
-    private RedisConnectionFactory managedConnectionFactory;
+    private RedisConfiguration redisConfiguration;
 
     public RedisIdempotentRepository(RedisTemplate<String, String> redisTemplate, String processorName) {
         this.setOperations = redisTemplate.opsForSet();
         this.processorName = processorName;
     }
 
-    public RedisIdempotentRepository (String processorName) {
-        RedisConfiguration redisConfiguration = new RedisConfiguration();
-        managedConnectionFactory = redisConfiguration.getConnectionFactory();
+    public RedisIdempotentRepository(String processorName) {
+        redisConfiguration = new RedisConfiguration();
         RedisTemplate<String, String> redisTemplate = redisConfiguration.getRedisTemplate();
         this.setOperations = redisTemplate.opsForSet();
         this.processorName = processorName;
@@ -34,7 +33,8 @@ public class RedisIdempotentRepository extends ServiceSupport implements Idempot
         return new RedisIdempotentRepository(processorName);
     }
 
-    public static RedisIdempotentRepository redisIdempotentRepository(RedisTemplate<String, String> redisTemplate, String processorName) {
+    public static RedisIdempotentRepository redisIdempotentRepository(
+            RedisTemplate<String, String> redisTemplate, String processorName) {
         return new RedisIdempotentRepository(redisTemplate, processorName);
     }
 
@@ -59,16 +59,14 @@ public class RedisIdempotentRepository extends ServiceSupport implements Idempot
     }
 
     public boolean confirm(String key) {
-        // noop
         return true;
     }
 
     protected void doShutdown() throws Exception {
-        if (managedConnectionFactory != null && managedConnectionFactory instanceof JedisConnectionFactory) {
-                JedisConnectionFactory jedisConnectionFactory = (JedisConnectionFactory) managedConnectionFactory;
-            jedisConnectionFactory.destroy();
-        }
         super.doShutdown();
+        if (redisConfiguration != null) {
+            redisConfiguration.stop();
+        }
     }
 
     protected void doStart() throws Exception {

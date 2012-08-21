@@ -7,7 +7,7 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
-public class RedisConfiguration{
+public class RedisConfiguration {
     private String command;
     private String channels;
     private Integer timeout;
@@ -17,6 +17,8 @@ public class RedisConfiguration{
     private RedisMessageListenerContainer listenerContainer;
     private RedisConnectionFactory connectionFactory;
     private RedisSerializer serializer;
+    private boolean managedListenerContainer;
+    private boolean managedConnectionFactory;
 
     public String getCommand() {
         return command;
@@ -92,6 +94,8 @@ public class RedisConfiguration{
 
     private RedisConnectionFactory createDefaultConnectionFactory() {
         JedisConnectionFactory jedisConnectionFactory = new JedisConnectionFactory();
+        managedConnectionFactory = true;
+
         if (host != null) {
             jedisConnectionFactory.setHostName(host);
         }
@@ -112,6 +116,7 @@ public class RedisConfiguration{
 
     private RedisMessageListenerContainer createDefaultListenerContainer() {
         listenerContainer = new RedisMessageListenerContainer();
+        managedListenerContainer = true;
         listenerContainer.setConnectionFactory(getConnectionFactory());
         listenerContainer.afterPropertiesSet();
         return listenerContainer;
@@ -120,5 +125,14 @@ public class RedisConfiguration{
     private RedisSerializer createDefaultSerializer() {
         serializer = new JdkSerializationRedisSerializer();
         return serializer;
+    }
+
+    public void stop() throws Exception {
+        if (managedConnectionFactory) {
+            ((JedisConnectionFactory)connectionFactory).destroy();
+        }
+        if (managedListenerContainer) {
+            listenerContainer.destroy();
+        }
     }
 }
