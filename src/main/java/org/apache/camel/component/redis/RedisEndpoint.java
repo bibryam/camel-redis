@@ -44,8 +44,8 @@ public class RedisEndpoint extends DirectEndpoint {
         return true;
     }
 
-    protected void doStop() throws Exception {
-        super.doStop();
+    protected void doShutdown() throws Exception {
+        super.doShutdown();
         configuration.stop();
     }
 
